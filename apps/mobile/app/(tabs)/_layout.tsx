@@ -12,7 +12,7 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.forest,
+        tabBarActiveTintColor: colors.lime,
         tabBarInactiveTintColor: colors.muted,
         tabBarStyle: {
           height: 70,

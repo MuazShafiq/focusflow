@@ -47,9 +47,9 @@ export default function LoginScreen() {
         <Text style={styles.subtitle}>Your balanced schedule is waiting.</Text>
       </View>
       <Text style={styles.label}>Email</Text>
-      <TextInput style={styles.input} value={email} onChangeText={setEmail} placeholder="you@example.com" placeholderTextColor="#9ba19d" autoCapitalize="none" keyboardType="email-address" />
+      <TextInput style={styles.input} value={email} onChangeText={setEmail} placeholder="you@example.com" placeholderTextColor={colors.placeholder} autoCapitalize="none" keyboardType="email-address" />
       <Text style={styles.label}>Password</Text>
-      <TextInput style={styles.input} value={password} onChangeText={setPassword} placeholder="At least 8 characters" placeholderTextColor="#9ba19d" secureTextEntry />
+      <TextInput style={styles.input} value={password} onChangeText={setPassword} placeholder="At least 8 characters" placeholderTextColor={colors.placeholder} secureTextEntry />
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <Pressable style={styles.button} onPress={() => void submit()} disabled={pending}>
         {pending ? <ActivityIndicator color="white" /> : <><Text style={styles.buttonText}>Sign in</Text><Ionicons name="arrow-forward" size={18} color="white" /></>}
@@ -69,10 +69,10 @@ const styles = StyleSheet.create({
   title: { fontSize: 40, fontWeight: "900", letterSpacing: -1.6, color: colors.ink, marginTop: 8 },
   subtitle: { color: colors.muted, marginTop: 8 },
   label: { fontSize: 12, fontWeight: "700", color: colors.ink, marginBottom: 8, marginTop: 15 },
-  input: { height: 52, borderWidth: 1, borderColor: colors.line, borderRadius: 13, paddingHorizontal: 15, backgroundColor: colors.card, color: colors.ink },
-  error: { marginTop: 14, color: colors.danger, backgroundColor: "#ffebe7", padding: 11, borderRadius: 9, fontSize: 12 },
+  input: { height: 52, borderWidth: 1, borderColor: colors.line, borderRadius: 13, paddingHorizontal: 15, backgroundColor: colors.field, color: colors.ink },
+  error: { marginTop: 14, color: colors.danger, backgroundColor: colors.dangerSurface, padding: 11, borderRadius: 9, fontSize: 12 },
   button: { height: 54, flexDirection: "row", gap: 8, alignItems: "center", justifyContent: "center", borderRadius: 14, backgroundColor: colors.forest, marginTop: 24 },
   buttonText: { color: "white", fontWeight: "800" },
   switch: { textAlign: "center", color: colors.muted, marginTop: 24, fontSize: 13 },
-  link: { color: colors.forest, fontWeight: "800" },
+  link: { color: colors.lime, fontWeight: "800" },
 });

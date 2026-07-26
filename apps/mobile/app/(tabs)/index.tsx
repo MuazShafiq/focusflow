@@ -22,7 +22,7 @@ const formatTime = (value: string) =>
 
 const accents: Record<ScheduleBlock["type"], string> = {
   task: colors.mint,
-  commitment: "#c8d3df",
+  commitment: "#91A6BB",
   exercise: colors.lime,
   meal: colors.apricot,
   break: colors.violet,
@@ -127,7 +127,7 @@ export default function TodayScreen() {
           <Ionicons
             name="sparkles-outline"
             size={16}
-            color={colors.forest}
+            color={colors.mint}
           />
           <Text style={styles.noticeText}>{message}</Text>
         </View>
@@ -171,7 +171,7 @@ export default function TodayScreen() {
         </Text>
       </View>
       {loading ? (
-        <ActivityIndicator style={{ marginTop: 40 }} color={colors.forest} />
+        <ActivityIndicator style={{ marginTop: 40 }} color={colors.mint} />
       ) : today.length ? (
         today.map((block) => (
           <View style={styles.blockRow} key={block.id}>
@@ -202,7 +202,7 @@ export default function TodayScreen() {
                     style={styles.complete}
                     onPress={() => void completeBlock(block.id)}
                   >
-                    <Ionicons name="checkmark" size={15} color={colors.forest} />
+                    <Ionicons name="checkmark" size={15} color={colors.mint} />
                   </Pressable>
                 ) : null}
               </View>
@@ -211,7 +211,7 @@ export default function TodayScreen() {
         ))
       ) : (
         <View style={styles.empty}>
-          <Ionicons name="leaf-outline" size={30} color={colors.forest} />
+          <Ionicons name="leaf-outline" size={30} color={colors.mint} />
           <Text style={styles.emptyTitle}>Your day is open.</Text>
           <Text style={styles.emptyText}>
             Add tasks, then let FocusFlow build a balanced first week.
@@ -251,16 +251,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  avatarText: { fontWeight: "800", color: colors.forest },
+  avatarText: { fontWeight: "800", color: colors.onAccent },
   notice: {
     flexDirection: "row",
     gap: 8,
-    backgroundColor: "#e9f1df",
+    backgroundColor: colors.subtle,
+    borderWidth: 1,
+    borderColor: colors.line,
     padding: 12,
     borderRadius: 12,
     marginTop: 18,
   },
-  noticeText: { flex: 1, fontSize: 12, color: colors.forest },
+  noticeText: { flex: 1, fontSize: 12, color: colors.mint },
   summaryRow: { flexDirection: "row", gap: 12, marginTop: 24 },
   summaryCard: {
     flex: 1,
@@ -293,7 +295,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginTop: 13,
   },
-  planButtonText: { fontWeight: "800", color: colors.forest },
+  planButtonText: { fontWeight: "800", color: colors.onAccent },
   sectionHead: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -343,7 +345,7 @@ const styles = StyleSheet.create({
     width: 27,
     height: 27,
     borderRadius: 8,
-    backgroundColor: "#eef3e7",
+    backgroundColor: colors.subtle,
     alignItems: "center",
     justifyContent: "center",
   },

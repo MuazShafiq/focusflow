@@ -52,7 +52,7 @@ export default function TasksScreen() {
   return (
     <View style={styles.screen}>
       <View style={styles.header}><View><Text style={styles.kicker}>PRIORITIES</Text><Text style={styles.title}>Open tasks</Text></View><Pressable style={styles.add} onPress={() => setModal(true)}><Ionicons name="add" size={24} color="white" /></Pressable></View>
-      {loading ? <ActivityIndicator color={colors.forest} /> : (
+      {loading ? <ActivityIndicator color={colors.mint} /> : (
         <ScrollView contentContainerStyle={styles.list}>
           {tasks.map((task) => (
             <View style={styles.task} key={task.id}>
@@ -67,8 +67,8 @@ export default function TasksScreen() {
       <Modal visible={modal} transparent animationType="slide" onRequestClose={() => setModal(false)}>
         <View style={styles.backdrop}><View style={styles.sheet}>
           <View style={styles.sheetHead}><Text style={styles.sheetTitle}>Add a task</Text><Pressable onPress={() => setModal(false)}><Ionicons name="close" size={24} color={colors.ink} /></Pressable></View>
-          <Text style={styles.label}>Task name</Text><TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder="Finish database chapter" />
-          <Text style={styles.label}>Estimated minutes</Text><TextInput style={styles.input} value={minutes} onChangeText={setMinutes} keyboardType="number-pad" />
+          <Text style={styles.label}>Task name</Text><TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder="Finish database chapter" placeholderTextColor={colors.placeholder} />
+          <Text style={styles.label}>Estimated minutes</Text><TextInput style={styles.input} value={minutes} onChangeText={setMinutes} keyboardType="number-pad" placeholderTextColor={colors.placeholder} />
           <Pressable style={styles.save} onPress={() => void create()}><Text style={styles.saveText}>Add to FocusFlow</Text></Pressable>
         </View></View>
       </Modal>
@@ -84,12 +84,12 @@ const styles = StyleSheet.create({
   add: { width: 44, height: 44, borderRadius: 14, backgroundColor: colors.forest, alignItems: "center", justifyContent: "center" },
   list: { paddingTop: 26, paddingBottom: 40, gap: 9 },
   task: { flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: 14, padding: 15 },
-  circle: { width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: "#9aa39e" },
+  circle: { width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: colors.muted },
   taskTitle: { fontSize: 14, fontWeight: "800", color: colors.ink }, meta: { fontSize: 10, color: colors.muted, marginTop: 4 },
-  priority: { backgroundColor: "#edf0ea", borderRadius: 7, paddingVertical: 5, paddingHorizontal: 8 }, urgent: { backgroundColor: "#fff0e5" }, priorityText: { fontSize: 10, fontWeight: "800", color: colors.muted },
+  priority: { backgroundColor: colors.subtle, borderRadius: 7, paddingVertical: 5, paddingHorizontal: 8 }, urgent: { backgroundColor: "#321F17" }, priorityText: { fontSize: 10, fontWeight: "800", color: colors.muted },
   empty: { textAlign: "center", color: colors.muted, marginTop: 80 },
-  backdrop: { flex: 1, backgroundColor: "#17251f66", justifyContent: "flex-end" }, sheet: { backgroundColor: colors.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 42 },
+  backdrop: { flex: 1, backgroundColor: colors.scrim, justifyContent: "flex-end" }, sheet: { backgroundColor: colors.card, borderTopWidth: 1, borderTopColor: colors.line, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 42 },
   sheetHead: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" }, sheetTitle: { fontSize: 23, fontWeight: "900", color: colors.ink },
-  label: { fontSize: 12, fontWeight: "700", color: colors.ink, marginTop: 20, marginBottom: 8 }, input: { height: 52, borderRadius: 12, borderWidth: 1, borderColor: colors.line, paddingHorizontal: 14, backgroundColor: colors.paper },
+  label: { fontSize: 12, fontWeight: "700", color: colors.ink, marginTop: 20, marginBottom: 8 }, input: { height: 52, borderRadius: 12, borderWidth: 1, borderColor: colors.line, paddingHorizontal: 14, backgroundColor: colors.field, color: colors.ink },
   save: { height: 52, borderRadius: 14, backgroundColor: colors.forest, alignItems: "center", justifyContent: "center", marginTop: 24 }, saveText: { color: "white", fontWeight: "800" },
 });
