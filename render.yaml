@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: focusflow-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: SCHEDULER_SERVICE_TOKEN
+        generateValue: true
+      - key: ACCESS_TOKEN_TTL
+        value: 15m
+      - key: REFRESH_TOKEN_TTL
+        value: 30d
+      - key: WEB_ORIGIN
+        sync: false
+      - key: SCHEDULER_URL
+        value: http://127.0.0.1:5001

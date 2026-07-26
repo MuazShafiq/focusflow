@@ -1,0 +1,31 @@
+{
+  "name": "focusflow-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "An adaptive, AI-assisted planner for balanced study and lifestyle schedules.",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "services/api"
+  ],
+  "scripts": {
+    "dev": "concurrently -n API,WEB,MOBILE -c blue,green,magenta \"npm run dev:api\" \"npm run dev:web\" \"npm run dev:mobile\"",
+    "dev:api": "npm run dev -w @focusflow/api",
+    "dev:web": "npm run dev -w @focusflow/web",
+    "dev:mobile": "npm run start -w @focusflow/mobile",
+    "dev:scheduler": "python -m flask --app services/scheduler/app run --port 5001 --debug",
+    "build": "npm run build -w @focusflow/contracts && npm run build -w @focusflow/api && npm run build -w @focusflow/web",
+    "test": "npm run test -w @focusflow/api && python -m pytest services/scheduler/tests",
+    "typecheck": "npm run typecheck -w @focusflow/api && npm run typecheck -w @focusflow/web && npm run typecheck -w @focusflow/mobile",
+    "lint": "npm run lint -w @focusflow/api && npm run lint -w @focusflow/web",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "prettier": "^3.6.2"
+  }
+}
