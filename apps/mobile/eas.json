@@ -9,12 +9,18 @@
     },
     "preview": {
       "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://focusflow-api-pearl.vercel.app/api"
+      },
       "android": {
         "buildType": "apk"
       }
     },
     "production": {
       "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://focusflow-api-pearl.vercel.app/api"
+      },
       "android": {
         "buildType": "apk"
       }
