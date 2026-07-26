@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "functions": {
+    "src/index.ts": {
+      "maxDuration": 60
+    }
+  }
+}

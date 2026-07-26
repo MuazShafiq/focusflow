@@ -13,7 +13,7 @@ which study blocks each user is most likely to complete.
 | Mobile | React Native, Expo Router, TypeScript |
 | API | Node.js, Express, MongoDB |
 | Scheduling | Python, Flask, scikit-learn |
-| Deployment | Vercel, Render, MongoDB Atlas, Expo EAS |
+| Deployment | Vercel Hobby, MongoDB Atlas, Expo EAS |
 
 ```text
 apps/web                 responsive browser application

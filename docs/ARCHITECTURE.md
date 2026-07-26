@@ -5,8 +5,8 @@
 1. The React web app and Expo mobile app authenticate through the Express API.
 2. Express owns users, tasks, commitments, preferences, plans, and feedback in
    MongoDB.
-3. Plan generation sends a bounded, user-scoped payload to Flask over the
-   container's loopback interface.
+3. Plan generation sends a bounded, user-scoped payload to the Flask scheduler
+   over HTTPS with a dedicated service token.
 4. Flask protects fixed commitments and locked blocks, adds enabled lifestyle
    targets, and searches feasible task slots.
 5. A scikit-learn classifier scores candidate task blocks by expected completion
@@ -45,9 +45,10 @@ retraining.
 
 ## Free deployment topology
 
-Express and Flask run in one Render container. Flask binds only to `127.0.0.1`;
-Express is the only public process. This preserves the logical service boundary
-while consuming one Render free instance instead of two.
+The React client, Express API, and Flask scheduler deploy as three Vercel Hobby
+projects from the same monorepo. Express and Flask each run as a serverless
+function, and only Express possesses the database connection string. The
+scheduler endpoint requires the shared service token.
 
-The web client deploys to Vercel. MongoDB Atlas provides the database, and Expo
-EAS produces Android APKs for GitHub Releases.
+MongoDB Atlas provides the database, and Expo EAS produces Android APKs for
+GitHub Releases.

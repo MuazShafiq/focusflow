@@ -5,8 +5,12 @@ import os
 
 from flask import Flask, jsonify, request
 
-from services.scheduler.focusflow_scheduler.engine import SchedulingEngine
-from services.scheduler.focusflow_scheduler.validation import ValidationError
+try:
+    from .focusflow_scheduler.engine import SchedulingEngine
+    from .focusflow_scheduler.validation import ValidationError
+except ImportError:
+    from focusflow_scheduler.engine import SchedulingEngine
+    from focusflow_scheduler.validation import ValidationError
 
 
 def create_app() -> Flask:

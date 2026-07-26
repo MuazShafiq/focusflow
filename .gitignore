@@ -19,6 +19,7 @@ __pycache__/
 .venv/
 venv/
 services/scheduler/artifacts/*.joblib
+!services/scheduler/artifacts/completion_model.joblib
 
 # Editors and operating systems
 .idea/

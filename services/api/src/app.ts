@@ -5,6 +5,7 @@ import helmet from "helmet";
 import mongoose from "mongoose";
 import { pinoHttp } from "pino-http";
 import { config } from "./config.js";
+import { connectDatabase } from "./lib/database.js";
 import { errorHandler, notFoundHandler } from "./lib/errors.js";
 import { requireAuth } from "./middleware/auth.js";
 import authRoutes from "./routes/auth.js";
@@ -17,6 +18,9 @@ export const createApp = () => {
   const app = express();
 
   app.disable("x-powered-by");
+  if (config.NODE_ENV === "production") {
+    app.set("trust proxy", 1);
+  }
   app.use(helmet());
   app.use(
     cors({
@@ -30,6 +34,14 @@ export const createApp = () => {
       redact: ["req.headers.authorization", "req.headers.cookie"],
     }),
   );
+  app.use(async (_req, _res, next) => {
+    try {
+      await connectDatabase();
+      next();
+    } catch (error) {
+      next(error);
+    }
+  });
 
   app.get("/health", (_req, res) => {
     res.json({

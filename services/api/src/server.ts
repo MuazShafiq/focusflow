@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
 import { createApp } from "./app.js";
 import { config } from "./config.js";
+import { connectDatabase } from "./lib/database.js";
 
 const start = async () => {
-  await mongoose.connect(config.MONGODB_URI);
+  await connectDatabase();
   const app = createApp();
   const server = app.listen(config.PORT, () => {
     console.log(`FocusFlow API listening on port ${config.PORT}`);
