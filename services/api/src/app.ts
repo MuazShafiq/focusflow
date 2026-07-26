@@ -1,7 +1,6 @@
 import cors from "cors";
 import express from "express";
 import { rateLimit } from "express-rate-limit";
-import helmet from "helmet";
 import mongoose from "mongoose";
 import { pinoHttp } from "pino-http";
 import { config } from "./config.js";
@@ -21,7 +20,23 @@ export const createApp = () => {
   if (config.NODE_ENV === "production") {
     app.set("trust proxy", 1);
   }
-  app.use(helmet());
+  app.use((_req, res, next) => {
+    res.setHeader("Content-Security-Policy", "default-src 'none'");
+    res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+    res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
+    res.setHeader("Origin-Agent-Cluster", "?1");
+    res.setHeader("Referrer-Policy", "no-referrer");
+    res.setHeader(
+      "Strict-Transport-Security",
+      "max-age=31536000; includeSubDomains",
+    );
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("X-DNS-Prefetch-Control", "off");
+    res.setHeader("X-Download-Options", "noopen");
+    res.setHeader("X-Frame-Options", "DENY");
+    res.setHeader("X-Permitted-Cross-Domain-Policies", "none");
+    next();
+  });
   app.use(
     cors({
       origin: config.WEB_ORIGIN.split(",").map((origin) => origin.trim()),
@@ -71,3 +86,5 @@ export const createApp = () => {
   app.use(errorHandler);
   return app;
 };
+
+export default createApp();

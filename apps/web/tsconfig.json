@@ -1,6 +1,8 @@
 {
-  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "allowJs": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     "target": "ES2022",
     "useDefineForClassFields": true,
     "module": "ESNext",
@@ -9,7 +11,11 @@
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
     "noEmit": true,
+    "skipLibCheck": true,
+    "strict": true,
     "jsx": "react-jsx",
     "types": ["vite/client"]
   },

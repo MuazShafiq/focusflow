@@ -40,8 +40,8 @@ retraining.
 - Every data query includes the authenticated user's identifier.
 - Request bodies are validated before reaching persistence.
 - Flask requires a timing-safe internal service token comparison.
-- Helmet, narrow CORS configuration, body limits, and auth rate limits are
-  enabled.
+- Security headers, narrow CORS configuration, body limits, and auth rate
+  limits are enabled.
 
 ## Free deployment topology
 
