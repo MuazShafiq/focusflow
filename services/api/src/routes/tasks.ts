@@ -19,6 +19,9 @@ const taskInput = z.object({
   preferredTimeOfDay: z
     .enum(["morning", "afternoon", "evening"])
     .optional(),
+  recurrence: z
+    .enum(["none", "daily", "weekdays", "weekly"])
+    .default("none"),
 });
 
 router.get(

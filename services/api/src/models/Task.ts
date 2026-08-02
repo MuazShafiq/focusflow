@@ -15,6 +15,11 @@ const taskSchema = new Schema(
       type: String,
       enum: ["morning", "afternoon", "evening"],
     },
+    recurrence: {
+      type: String,
+      enum: ["none", "daily", "weekdays", "weekly"],
+      default: "none",
+    },
     status: {
       type: String,
       enum: ["todo", "in_progress", "completed", "archived"],

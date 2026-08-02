@@ -3,6 +3,8 @@ import { z } from "zod";
 import { config } from "../config.js";
 import { asyncHandler } from "../lib/async-handler.js";
 import { ApiError } from "../lib/errors.js";
+import { expandCommitments } from "../lib/expand-commitments.js";
+import { expandTasks } from "../lib/expand-tasks.js";
 import { serialize } from "../lib/serialize.js";
 import { CommitmentModel } from "../models/Commitment.js";
 import { FeedbackModel } from "../models/Feedback.js";
@@ -69,24 +71,30 @@ router.post(
 
     const [user, tasks, commitments, previousPlan, recentFeedback] =
       await Promise.all([
-      UserModel.findById(req.userId),
-      TaskModel.find({
-        userId: req.userId,
-        status: { $in: ["todo", "in_progress"] },
-        remainingMinutes: { $gt: 0 },
-      }).sort({ dueAt: 1, priority: -1 }),
-      CommitmentModel.find({
-        userId: req.userId,
-        startAt: { $lt: input.rangeEnd },
-        endAt: { $gt: input.rangeStart },
-      }),
-      PlanModel.findOne({ userId: req.userId, active: true }).sort({
-        createdAt: -1,
-      }),
-      FeedbackModel.find({ userId: req.userId, blockType: "task" })
-        .sort({ createdAt: -1 })
-        .limit(200),
-    ]);
+        UserModel.findById(req.userId),
+        TaskModel.find({
+          userId: req.userId,
+          status: { $in: ["todo", "in_progress"] },
+          remainingMinutes: { $gt: 0 },
+        }).sort({ dueAt: 1, priority: -1 }),
+        CommitmentModel.find({
+          userId: req.userId,
+          $or: [
+            { recurrence: "weekly", startAt: { $lt: input.rangeEnd } },
+            {
+              recurrence: { $ne: "weekly" },
+              startAt: { $lt: input.rangeEnd },
+              endAt: { $gt: input.rangeStart },
+            },
+          ],
+        }),
+        PlanModel.findOne({ userId: req.userId, active: true }).sort({
+          createdAt: -1,
+        }),
+        FeedbackModel.find({ userId: req.userId, blockType: "task" })
+          .sort({ createdAt: -1 })
+          .limit(200),
+      ]);
 
     if (!user) {
       throw new ApiError(404, "User was not found");
@@ -124,26 +132,46 @@ router.post(
           rangeStart: input.rangeStart,
           rangeEnd: input.rangeEnd,
           preferences: user.preferences,
-          tasks: tasks.map((task) => ({
-            id: task.id,
-            title: task.title,
-            category: task.category,
-            dueAt: task.dueAt,
-            remainingMinutes: task.remainingMinutes,
-            priority: task.priority,
-            difficulty: task.difficulty,
-            preferredTimeOfDay: task.preferredTimeOfDay,
-          })),
-          commitments: commitments.map((commitment) => ({
-            id: commitment.id,
-            title: commitment.title,
-            startAt: commitment.startAt,
-            endAt: commitment.endAt,
-            category: commitment.category,
-          })),
+          tasks: expandTasks(
+            tasks.map((task) => ({
+              id: task.id,
+              title: task.title,
+              category: task.category,
+              dueAt: task.dueAt,
+              estimatedMinutes: task.estimatedMinutes,
+              remainingMinutes: task.remainingMinutes,
+              priority: task.priority,
+              difficulty: task.difficulty,
+              preferredTimeOfDay: task.preferredTimeOfDay ?? undefined,
+              recurrence: task.recurrence,
+            })),
+            input.rangeStart,
+            input.rangeEnd,
+          ),
+          commitments: expandCommitments(
+            commitments.map((commitment) => ({
+              id: commitment.id,
+              title: commitment.title,
+              startAt: commitment.startAt,
+              endAt: commitment.endAt,
+              category: commitment.category,
+              recurrence: commitment.recurrence,
+              recurrenceDays: commitment.recurrenceDays,
+            })),
+            input.rangeStart,
+            input.rangeEnd,
+            user.preferences.timezone,
+          ),
           lockedBlocks:
             previousPlan?.blocks
-              .filter((block) => block.locked)
+              .filter(
+                (block) =>
+                  block.locked &&
+                  !(
+                    block.sourceId &&
+                    ["commitment", "exercise"].includes(block.type)
+                  ),
+              )
               .map((block) => ({
                 sourceId: block.sourceId,
                 title: block.title,
@@ -155,9 +183,7 @@ router.post(
           learningProfile: Object.fromEntries(
             Object.entries(learningProfile).map(([bucket, values]) => [
               bucket,
-              values.total
-                ? values.completed / values.total
-                : 0.5,
+              values.total ? values.completed / values.total : 0.5,
             ]),
           ),
         }),

@@ -86,6 +86,31 @@ def test_reports_minutes_that_do_not_fit(tmp_path: Path):
     assert result["warnings"][0]["unscheduledMinutes"] > 0
 
 
+def test_fixed_exercise_counts_toward_the_movement_target(tmp_path: Path):
+    request = payload()
+    request["commitments"] = [
+        {
+            "id": "boxing",
+            "title": "Boxing",
+            "category": "Exercise",
+            "startAt": (
+                datetime.fromisoformat(request["rangeStart"]) + timedelta(hours=20)
+            ).isoformat(),
+            "endAt": (
+                datetime.fromisoformat(request["rangeStart"]) + timedelta(hours=21)
+            ).isoformat(),
+        }
+    ]
+
+    result = SchedulingEngine(tmp_path / "missing-model.joblib").generate(request)
+    exercise_blocks = [
+        block for block in result["blocks"] if block["type"] == "exercise"
+    ]
+
+    assert len(exercise_blocks) == 1
+    assert exercise_blocks[0]["title"] == "Boxing"
+
+
 def test_real_feedback_profile_changes_slot_ranking(tmp_path: Path):
     request = payload()
     request["preferences"]["autoScheduleLifestyle"] = False

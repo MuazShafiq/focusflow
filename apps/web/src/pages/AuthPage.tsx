@@ -9,25 +9,33 @@ export const AuthPage = ({ mode }: { mode: "login" | "register" }) => {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
-  if (session) return <Navigate to="/app" replace />;
+  if (session) return <Navigate to="/dashboard" replace />;
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
-    setPending(true);
     const data = new FormData(event.currentTarget);
+    const password = String(data.get("password"));
+    if (
+      mode === "register" &&
+      password !== String(data.get("confirmPassword"))
+    ) {
+      setError("Passwords do not match");
+      return;
+    }
+    setPending(true);
     try {
       if (mode === "login") {
-        await login(String(data.get("email")), String(data.get("password")));
+        await login(String(data.get("email")), password);
       } else {
         await register({
           displayName: String(data.get("displayName")),
           email: String(data.get("email")),
-          password: String(data.get("password")),
+          password,
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         });
       }
-      navigate("/app");
+      navigate("/dashboard");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Unable to continue");
     } finally {
@@ -61,6 +69,12 @@ export const AuthPage = ({ mode }: { mode: "login" | "register" }) => {
             Password
             <input name="password" type="password" placeholder="At least 8 characters" required minLength={8} autoComplete={isLogin ? "current-password" : "new-password"} />
           </label>
+          {!isLogin && (
+            <label>
+              Confirm password
+              <input name="confirmPassword" type="password" placeholder="Enter your password again" required minLength={8} autoComplete="new-password" />
+            </label>
+          )}
           {error && <div className="form-error">{error}</div>}
           <button className="button button-dark button-full" disabled={pending}>
             {pending ? "One moment…" : isLogin ? "Sign in" : "Create my account"}

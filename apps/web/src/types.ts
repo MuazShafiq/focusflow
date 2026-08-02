@@ -7,6 +7,7 @@ export interface User {
 
 export interface UserPreferences {
   timezone: string;
+  clockFormat: "12h" | "24h";
   dayStart: string;
   dayEnd: string;
   focusSessionMinutes: number;
@@ -37,6 +38,7 @@ export interface Task {
   remainingMinutes: number;
   priority: number;
   difficulty: number;
+  recurrence: "none" | "daily" | "weekdays" | "weekly";
   status: "todo" | "in_progress" | "completed" | "archived";
 }
 

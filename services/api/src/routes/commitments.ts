@@ -13,11 +13,31 @@ const commitmentInput = z
     category: z.string().trim().min(1).max(60).default("Commitment"),
     startAt: z.coerce.date(),
     endAt: z.coerce.date(),
+    recurrence: z.enum(["none", "weekly"]).default("none"),
+    recurrenceDays: z
+      .array(z.coerce.number().int().min(0).max(6))
+      .max(7)
+      .default([]),
   })
   .refine((value) => value.endAt > value.startAt, {
     message: "End time must be after start time",
     path: ["endAt"],
-  });
+  })
+  .refine(
+    (value) =>
+      value.recurrence !== "weekly" || value.recurrenceDays.length > 0,
+    {
+      message: "Choose at least one repeat day",
+      path: ["recurrenceDays"],
+    },
+  )
+  .transform((value) => ({
+    ...value,
+    recurrenceDays:
+      value.recurrence === "weekly"
+        ? [...new Set(value.recurrenceDays)].sort()
+        : [],
+  }));
 
 router.get(
   "/",
@@ -28,8 +48,14 @@ router.get(
       : new Date(from.getTime() + 14 * 86_400_000);
     const commitments = await CommitmentModel.find({
       userId: req.userId,
-      startAt: { $lt: to },
-      endAt: { $gt: from },
+      $or: [
+        { recurrence: "weekly", startAt: { $lt: to } },
+        {
+          recurrence: { $ne: "weekly" },
+          startAt: { $lt: to },
+          endAt: { $gt: from },
+        },
+      ],
     }).sort({ startAt: 1 });
     res.json({ data: serialize(commitments) });
   }),
@@ -64,6 +90,8 @@ router.patch(
       category: req.body.category ?? existing.category,
       startAt: req.body.startAt ?? existing.startAt,
       endAt: req.body.endAt ?? existing.endAt,
+      recurrence: req.body.recurrence ?? existing.recurrence,
+      recurrenceDays: req.body.recurrenceDays ?? existing.recurrenceDays,
     });
     Object.assign(existing, candidate);
     await existing.save();
