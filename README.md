@@ -1,12 +1,15 @@
 # FocusFlow
 
-FocusFlow is an AI-assisted planner that turns tasks, deadlines, recurring
-commitments, energy patterns, and lifestyle goals into a realistic calendar.
-Its constraint-aware scheduling engine protects fixed commitments and healthy
-routines while a lightweight machine-learning model learns when each user is
-most likely to complete focused work.
+FocusFlow is an AI-assisted planner for desktop and mobile browsers. It turns
+tasks, deadlines, recurring commitments, energy patterns, and lifestyle goals
+into a realistic calendar. Its constraint-aware scheduling engine protects
+fixed commitments and healthy routines while a lightweight machine-learning
+model learns when each user is most likely to complete focused work.
 
 **Live web app:** [focusflow-web-azure.vercel.app](https://focusflow-web-azure.vercel.app)
+
+Use the same URL on a computer or phone—no native app or app-store installation
+is required.
 
 ## Features
 
