@@ -9,7 +9,7 @@ import {
   type PropsWithChildren,
 } from "react";
 import { ApiClientError, apiRequest } from "../lib/api";
-import type { AuthSession } from "../types";
+import type { AuthSession, UserPreferences } from "../types";
 
 interface AuthContextValue {
   session: AuthSession | null;
@@ -18,6 +18,7 @@ interface AuthContextValue {
   register(displayName: string, email: string, password: string): Promise<void>;
   logout(): Promise<void>;
   request<T>(path: string, options?: RequestInit): Promise<T>;
+  savePreferences(preferences: UserPreferences): Promise<void>;
 }
 
 const key = "focusflow.session";
@@ -28,7 +29,15 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     SecureStore.getItemAsync(key)
-      .then((value) => setSession(value ? JSON.parse(value) : null))
+      .then((value) => {
+        if (!value) {
+          setSession(null);
+          return;
+        }
+        const storedSession = JSON.parse(value) as AuthSession;
+        storedSession.user.preferences.clockFormat ??= "12h";
+        setSession(storedSession);
+      })
       .finally(() => setLoading(false));
   }, []);
   const save = useCallback(async (next: AuthSession | null) => {
@@ -82,23 +91,55 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         if (!(error instanceof ApiClientError) || error.status !== 401) {
           throw error;
         }
-        const tokens = await apiRequest<{
-          accessToken: string;
-          refreshToken: string;
-        }>("/auth/refresh", {
-          method: "POST",
-          body: JSON.stringify({ refreshToken: session.refreshToken }),
-        });
-        const next = { ...session, ...tokens };
-        await save(next);
-        return apiRequest<T>(path, options, next.accessToken);
+        try {
+          const tokens = await apiRequest<{
+            accessToken: string;
+            refreshToken: string;
+          }>("/auth/refresh", {
+            method: "POST",
+            body: JSON.stringify({ refreshToken: session.refreshToken }),
+          });
+          const next = { ...session, ...tokens };
+          await save(next);
+          return await apiRequest<T>(path, options, next.accessToken);
+        } catch (refreshError) {
+          if (
+            refreshError instanceof ApiClientError &&
+            refreshError.status === 401
+          ) {
+            await save(null);
+            throw new ApiClientError(
+              "Your local session expired. Please sign in again.",
+              401,
+            );
+          }
+          throw refreshError;
+        }
       }
     },
     [save, session],
   );
+  const savePreferences = useCallback(
+    async (preferences: UserPreferences) => {
+      if (!session) return;
+      await save({
+        ...session,
+        user: { ...session.user, preferences },
+      });
+    },
+    [save, session],
+  );
   const value = useMemo(
-    () => ({ session, loading, login, register, logout, request }),
-    [session, loading, login, register, logout, request],
+    () => ({
+      session,
+      loading,
+      login,
+      register,
+      logout,
+      request,
+      savePreferences,
+    }),
+    [session, loading, login, register, logout, request, savePreferences],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

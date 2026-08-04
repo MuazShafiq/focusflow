@@ -9,13 +9,14 @@
     "services/api"
   ],
   "scripts": {
-    "dev": "concurrently -n API,WEB,MOBILE -c blue,green,magenta \"npm run dev:api\" \"npm run dev:web\" \"npm run dev:mobile\"",
+    "dev": "concurrently -n API,SCHEDULER,WEB -c blue,yellow,green \"npm run dev:api:local\" \"npm run dev:scheduler\" \"npm run dev:web\"",
     "dev:api": "npm run dev -w @focusflow/api",
+    "dev:api:local": "npm run dev:local -w @focusflow/api",
     "dev:web": "npm run dev -w @focusflow/web",
     "dev:mobile": "npm run start -w @focusflow/mobile",
-    "dev:scheduler": "python -m flask --app services/scheduler/app run --port 5001 --debug",
+    "dev:scheduler": "node scripts/python-command.mjs -m flask --app services/scheduler/app.py run --host 127.0.0.1 --port 5001 --debug",
     "build": "npm run build -w @focusflow/contracts && npm run build -w @focusflow/api && npm run build -w @focusflow/web",
-    "test": "npm run test -w @focusflow/api && python -m pytest services/scheduler/tests",
+    "test": "npm run test -w @focusflow/api && node scripts/python-command.mjs -m pytest services/scheduler/tests",
     "typecheck": "npm run typecheck -w @focusflow/api && npm run typecheck -w @focusflow/web && npm run typecheck -w @focusflow/mobile",
     "lint": "npm run lint -w @focusflow/api && npm run lint -w @focusflow/web",
     "format": "prettier --write .",

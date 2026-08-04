@@ -14,6 +14,16 @@ import { useAuth } from "../../src/auth/AuthContext";
 import { colors } from "../../src/theme";
 import type { Task } from "../../src/types";
 
+const recurrenceOptions: Array<{
+  value: Task["recurrence"];
+  label: string;
+}> = [
+  { value: "none", label: "Never" },
+  { value: "daily", label: "Daily" },
+  { value: "weekdays", label: "Weekdays" },
+  { value: "weekly", label: "Weekly" },
+];
+
 export default function TasksScreen() {
   const { session, request } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -21,6 +31,7 @@ export default function TasksScreen() {
   const [modal, setModal] = useState(false);
   const [title, setTitle] = useState("");
   const [minutes, setMinutes] = useState("60");
+  const [recurrence, setRecurrence] = useState<Task["recurrence"]>("none");
   const load = useCallback(async () => {
     if (!session) return;
     try {
@@ -33,7 +44,7 @@ export default function TasksScreen() {
   const create = async () => {
     if (!session || !title.trim()) return;
     const dueAt = new Date();
-    dueAt.setDate(dueAt.getDate() + 7);
+    dueAt.setDate(dueAt.getDate() + (recurrence === "none" ? 7 : 1));
     const task = await request<Task>("/tasks", {
       method: "POST",
       body: JSON.stringify({
@@ -43,10 +54,12 @@ export default function TasksScreen() {
         estimatedMinutes: Number(minutes) || 60,
         priority: 3,
         difficulty: 3,
+        recurrence,
       }),
     });
     setTasks((current) => [...current, task]);
     setTitle("");
+    setRecurrence("none");
     setModal(false);
   };
   return (
@@ -57,7 +70,7 @@ export default function TasksScreen() {
           {tasks.map((task) => (
             <View style={styles.task} key={task.id}>
               <View style={styles.circle} />
-              <View style={{ flex: 1 }}><Text style={styles.taskTitle}>{task.title}</Text><Text style={styles.meta}>{task.category} · {task.remainingMinutes} min</Text></View>
+              <View style={{ flex: 1 }}><Text style={styles.taskTitle}>{task.title}</Text><Text style={styles.meta}>{task.category} · {task.remainingMinutes} min{task.recurrence !== "none" ? ` · ${task.recurrence}` : ""}</Text></View>
               <View style={[styles.priority, task.priority >= 4 && styles.urgent]}><Text style={styles.priorityText}>P{task.priority}</Text></View>
             </View>
           ))}
@@ -69,6 +82,24 @@ export default function TasksScreen() {
           <View style={styles.sheetHead}><Text style={styles.sheetTitle}>Add a task</Text><Pressable onPress={() => setModal(false)}><Ionicons name="close" size={24} color={colors.ink} /></Pressable></View>
           <Text style={styles.label}>Task name</Text><TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder="Finish database chapter" placeholderTextColor={colors.placeholder} />
           <Text style={styles.label}>Estimated minutes</Text><TextInput style={styles.input} value={minutes} onChangeText={setMinutes} keyboardType="number-pad" placeholderTextColor={colors.placeholder} />
+          <Text style={styles.label}>Repeat</Text>
+          <View style={styles.repeatOptions}>
+            {recurrenceOptions.map((option) => (
+              <Pressable
+                key={option.value}
+                style={[
+                  styles.repeatOption,
+                  recurrence === option.value && styles.repeatOptionActive,
+                ]}
+                onPress={() => setRecurrence(option.value)}
+              >
+                <Text style={[
+                  styles.repeatOptionText,
+                  recurrence === option.value && styles.repeatOptionTextActive,
+                ]}>{option.label}</Text>
+              </Pressable>
+            ))}
+          </View>
           <Pressable style={styles.save} onPress={() => void create()}><Text style={styles.saveText}>Add to FocusFlow</Text></Pressable>
         </View></View>
       </Modal>
@@ -91,5 +122,10 @@ const styles = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: colors.scrim, justifyContent: "flex-end" }, sheet: { backgroundColor: colors.card, borderTopWidth: 1, borderTopColor: colors.line, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 42 },
   sheetHead: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" }, sheetTitle: { fontSize: 23, fontWeight: "900", color: colors.ink },
   label: { fontSize: 12, fontWeight: "700", color: colors.ink, marginTop: 20, marginBottom: 8 }, input: { height: 52, borderRadius: 12, borderWidth: 1, borderColor: colors.line, paddingHorizontal: 14, backgroundColor: colors.field, color: colors.ink },
+  repeatOptions: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  repeatOption: { borderWidth: 1, borderColor: colors.line, borderRadius: 10, paddingVertical: 9, paddingHorizontal: 12, backgroundColor: colors.field },
+  repeatOptionActive: { borderColor: colors.mint, backgroundColor: colors.subtle },
+  repeatOptionText: { color: colors.muted, fontSize: 11, fontWeight: "700" },
+  repeatOptionTextActive: { color: colors.mint },
   save: { height: 52, borderRadius: 14, backgroundColor: colors.forest, alignItems: "center", justifyContent: "center", marginTop: 24 }, saveText: { color: "white", fontWeight: "800" },
 });

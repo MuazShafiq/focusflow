@@ -105,6 +105,10 @@ class SchedulingEngine:
         blocks: list[dict[str, Any]] = []
         busy: list[Interval] = []
         daily_load: dict[date, int] = {}
+        protected_exercise_minutes = 0
+        auto_schedule_lifestyle = bool(
+            preferences.get("autoScheduleLifestyle", True)
+        )
 
         for item in payload.get("commitments") or []:
             commitment = require_mapping(item)
@@ -116,18 +120,66 @@ class SchedulingEngine:
             ).astimezone(timezone)
             if end <= start:
                 raise ValidationError("A commitment ends before it starts")
-            busy.append(Interval(start, end))
-            blocks.append(
-                self._block(
-                    source_id=str(commitment.get("id", "")) or None,
-                    title=str(commitment.get("title", "Commitment")),
-                    block_type="commitment",
-                    start=start,
-                    end=end,
-                    rationale="A fixed commitment you asked FocusFlow to protect.",
-                    locked=True,
-                )
+            category = str(commitment.get("category", "")).strip().lower()
+            block_type = (
+                "exercise"
+                if category in {"exercise", "fitness", "sport", "sports"}
+                else "commitment"
             )
+            if block_type == "exercise":
+                protected_exercise_minutes += round(
+                    (end - start).total_seconds() / 60
+                )
+            busy.append(Interval(start, end))
+            source_id = str(commitment.get("id", "")) or None
+            title = str(commitment.get("title", "Commitment"))
+            title_words = set(title.strip().lower().replace("-", " ").split())
+            is_work_commitment = (
+                category in {"work", "job"}
+                or "work" in title_words
+                or "shift" in title_words
+            )
+            lunch_start = self._on_date(
+                start.date(), time(12, 30), range_start.tzinfo
+            )
+            lunch_end = lunch_start + timedelta(minutes=30)
+            split_for_lunch = (
+                auto_schedule_lifestyle
+                and is_work_commitment
+                and start < lunch_start
+                and lunch_end < end
+            )
+            commitment_segments = (
+                [
+                    (title, block_type, start, lunch_start, True),
+                    ("Lunch", "meal", lunch_start, lunch_end, False),
+                    (title, block_type, lunch_end, end, True),
+                ]
+                if split_for_lunch
+                else [(title, block_type, start, end, True)]
+            )
+            for (
+                segment_title,
+                segment_type,
+                segment_start,
+                segment_end,
+                locked,
+            ) in commitment_segments:
+                blocks.append(
+                    self._block(
+                        source_id=source_id if segment_type != "meal" else None,
+                        title=segment_title,
+                        block_type=segment_type,
+                        start=segment_start,
+                        end=segment_end,
+                        rationale=(
+                            "Protected lunch inside your workday."
+                            if segment_type == "meal"
+                            else "A fixed commitment you asked FocusFlow to protect."
+                        ),
+                        locked=locked,
+                    )
+                )
 
         for item in payload.get("lockedBlocks") or []:
             locked = require_mapping(item)
@@ -150,13 +202,14 @@ class SchedulingEngine:
                 )
             )
 
-        if bool(preferences.get("autoScheduleLifestyle", True)):
+        if auto_schedule_lifestyle:
             self._schedule_lifestyle(
                 range_start=range_start,
                 range_end=range_end,
                 day_start=day_start,
                 day_end=day_end,
                 exercise_minutes=int(preferences.get("exerciseMinutesPerWeek", 150)),
+                protected_exercise_minutes=protected_exercise_minutes,
                 leisure_minutes=int(preferences.get("leisureMinutesPerDay", 45)),
                 busy=busy,
                 blocks=blocks,
@@ -388,12 +441,17 @@ class SchedulingEngine:
         day_start: time,
         day_end: time,
         exercise_minutes: int,
+        protected_exercise_minutes: int,
         leisure_minutes: int,
         busy: list[Interval],
         blocks: list[dict[str, Any]],
     ) -> None:
         days = max(1, (range_end.date() - range_start.date()).days + 1)
-        exercise_budget = round(exercise_minutes * min(days, 7) / 7)
+        exercise_budget = max(
+            0,
+            round(exercise_minutes * min(days, 7) / 7)
+            - protected_exercise_minutes,
+        )
         exercise_days = max(0, min(days, round(exercise_budget / 30)))
         exercise_scheduled = 0
 
@@ -404,19 +462,46 @@ class SchedulingEngine:
             day_window_end = self._on_date(current_day, day_end, range_start.tzinfo)
 
             meals = [
-                ("Lunch", time(12, 30), 30),
-                ("Dinner", time(19, 0), 45),
+                ("Lunch", time(12, 30), (30,)),
+                ("Dinner", time(19, 0), (45, 30)),
             ]
-            for title, clock, duration in meals:
-                start = self._on_date(current_day, clock, range_start.tzinfo)
-                interval = Interval(start, start + timedelta(minutes=duration))
-                if (
-                    interval.start >= range_start
-                    and interval.end <= range_end
-                    and interval.start >= day_window_start
-                    and interval.end <= day_window_end
-                    and self._is_free(interval, busy)
-                ):
+            for title, clock, durations in meals:
+                already_scheduled = any(
+                    block["type"] == "meal"
+                    and block["title"] == title
+                    and datetime.fromisoformat(block["startAt"]).date()
+                    == current_day
+                    for block in blocks
+                )
+                if already_scheduled:
+                    continue
+
+                preferred_start = self._on_date(
+                    current_day, clock, range_start.tzinfo
+                )
+                interval = None
+                for step in range(13):
+                    candidate_start = preferred_start + timedelta(
+                        minutes=step * 15
+                    )
+                    for duration in durations:
+                        candidate = Interval(
+                            candidate_start,
+                            candidate_start + timedelta(minutes=duration),
+                        )
+                        if (
+                            candidate.start >= range_start
+                            and candidate.end <= range_end
+                            and candidate.start >= day_window_start
+                            and candidate.end <= day_window_end
+                            and self._is_free(candidate, busy)
+                        ):
+                            interval = candidate
+                            break
+                    if interval:
+                        break
+
+                if interval:
                     busy.append(interval)
                     blocks.append(
                         self._block(

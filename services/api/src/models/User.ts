@@ -3,6 +3,11 @@ import { Schema, model } from "mongoose";
 const preferencesSchema = new Schema(
   {
     timezone: { type: String, default: "UTC" },
+    clockFormat: {
+      type: String,
+      enum: ["12h", "24h"],
+      default: "12h",
+    },
     dayStart: { type: String, default: "07:00" },
     dayEnd: { type: String, default: "23:00" },
     focusSessionMinutes: { type: Number, default: 50, min: 20, max: 120 },

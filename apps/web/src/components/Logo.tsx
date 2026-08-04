@@ -1,12 +1,13 @@
+import { useAuth } from "../auth/AuthContext";
 import { Link } from "./Link";
 
-export const Logo = () => (
-  <Link className="logo" to="/">
-    <span className="logo-mark" aria-hidden="true">
-      <i />
-      <i />
-      <i />
-    </span>
-    <span>FocusFlow</span>
-  </Link>
-);
+export const Logo = () => {
+  const { session } = useAuth();
+
+  return (
+    <Link className="logo" to={session ? "/dashboard" : "/"}>
+      <img className="logo-mark" src="/focusflow-mark.png" alt="" />
+      <span>FocusFlow</span>
+    </Link>
+  );
+};

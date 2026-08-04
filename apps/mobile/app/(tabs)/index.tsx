@@ -10,24 +10,10 @@ import {
   View,
 } from "react-native";
 import { useAuth } from "../../src/auth/AuthContext";
+import { ScheduleCalendar } from "../../src/components/ScheduleCalendar";
 import { schedulePlanNotifications } from "../../src/lib/notifications";
 import { colors } from "../../src/theme";
-import type { Plan, ScheduleBlock, Task } from "../../src/types";
-
-const formatTime = (value: string) =>
-  new Intl.DateTimeFormat(undefined, {
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(new Date(value));
-
-const accents: Record<ScheduleBlock["type"], string> = {
-  task: colors.mint,
-  commitment: "#91A6BB",
-  exercise: colors.lime,
-  meal: colors.apricot,
-  break: colors.violet,
-  leisure: colors.violet,
-};
+import type { Plan, Task } from "../../src/types";
 
 export default function TodayScreen() {
   const { session, request } = useAuth();
@@ -100,6 +86,7 @@ export default function TodayScreen() {
       (block) => new Date(block.startAt).toDateString() === now.toDateString(),
     ) ?? [];
   const firstName = session?.user.displayName.split(" ")[0] ?? "there";
+  const clockFormat = session?.user.preferences.clockFormat ?? "12h";
 
   return (
     <ScrollView
@@ -124,11 +111,7 @@ export default function TodayScreen() {
       </View>
       {message ? (
         <View style={styles.notice}>
-          <Ionicons
-            name="sparkles-outline"
-            size={16}
-            color={colors.mint}
-          />
+          <Ionicons name="sparkles-outline" size={16} color={colors.mint} />
           <Text style={styles.noticeText}>{message}</Text>
         </View>
       ) : null}
@@ -173,42 +156,14 @@ export default function TodayScreen() {
       {loading ? (
         <ActivityIndicator style={{ marginTop: 40 }} color={colors.mint} />
       ) : today.length ? (
-        today.map((block) => (
-          <View style={styles.blockRow} key={block.id}>
-            <Text style={styles.blockTime}>{formatTime(block.startAt)}</Text>
-            <View
-              style={[
-                styles.blockCard,
-                { borderLeftColor: accents[block.type] },
-              ]}
-            >
-              <View style={{ flex: 1 }}>
-                <Text style={styles.blockTitle}>{block.title}</Text>
-                <Text style={styles.blockReason} numberOfLines={2}>
-                  {block.rationale}
-                </Text>
-              </View>
-              <View style={styles.blockAside}>
-                <Text style={styles.blockMinutes}>
-                  {Math.round(
-                    (new Date(block.endAt).getTime() -
-                      new Date(block.startAt).getTime()) /
-                      60_000,
-                  )}
-                  m
-                </Text>
-                {block.status === "planned" ? (
-                  <Pressable
-                    style={styles.complete}
-                    onPress={() => void completeBlock(block.id)}
-                  >
-                    <Ionicons name="checkmark" size={15} color={colors.mint} />
-                  </Pressable>
-                ) : null}
-              </View>
-            </View>
-          </View>
-        ))
+        <ScheduleCalendar
+          blocks={today}
+          date={now}
+          clockFormat={clockFormat}
+          dayStart={session?.user.preferences.dayStart ?? "07:00"}
+          dayEnd={session?.user.preferences.dayEnd ?? "23:00"}
+          onComplete={(blockId) => void completeBlock(blockId)}
+        />
       ) : (
         <View style={styles.empty}>
           <Ionicons name="leaf-outline" size={30} color={colors.mint} />
@@ -310,45 +265,6 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
   date: { color: colors.muted, fontSize: 12 },
-  blockRow: {
-    flexDirection: "row",
-    gap: 11,
-    marginBottom: 9,
-    alignItems: "flex-start",
-  },
-  blockTime: {
-    width: 52,
-    fontSize: 11,
-    color: colors.muted,
-    marginTop: 15,
-  },
-  blockCard: {
-    flex: 1,
-    minHeight: 64,
-    flexDirection: "row",
-    gap: 8,
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    borderLeftWidth: 5,
-    padding: 13,
-  },
-  blockTitle: { fontSize: 13, fontWeight: "800", color: colors.ink },
-  blockReason: {
-    fontSize: 10,
-    color: colors.muted,
-    marginTop: 3,
-    lineHeight: 14,
-  },
-  blockMinutes: { fontSize: 10, color: colors.muted },
-  blockAside: { alignItems: "flex-end", gap: 8 },
-  complete: {
-    width: 27,
-    height: 27,
-    borderRadius: 8,
-    backgroundColor: colors.subtle,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   empty: {
     alignItems: "center",
     backgroundColor: colors.card,

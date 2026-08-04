@@ -1,5 +1,6 @@
 export type TimeOfDay = "morning" | "afternoon" | "evening";
 export type TaskStatus = "todo" | "in_progress" | "completed" | "archived";
+export type TaskRecurrence = "none" | "daily" | "weekdays" | "weekly";
 export type BlockType =
   | "task"
   | "commitment"
@@ -15,6 +16,7 @@ export type BlockStatus =
 
 export interface UserPreferences {
   timezone: string;
+  clockFormat: "12h" | "24h";
   dayStart: string;
   dayEnd: string;
   focusSessionMinutes: number;
@@ -44,6 +46,7 @@ export interface Task {
   priority: number;
   difficulty: number;
   preferredTimeOfDay?: TimeOfDay;
+  recurrence: TaskRecurrence;
   status: TaskStatus;
 }
 
@@ -53,6 +56,8 @@ export interface Commitment {
   startAt: string;
   endAt: string;
   category: string;
+  recurrence: "none" | "weekly";
+  recurrenceDays: number[];
 }
 
 export interface ScheduleBlock {

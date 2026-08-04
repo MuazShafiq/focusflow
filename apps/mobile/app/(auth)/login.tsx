@@ -12,6 +12,7 @@ import {
   View,
 } from "react-native";
 import { useAuth } from "../../src/auth/AuthContext";
+import { BrandMark } from "../../src/components/BrandMark";
 import { colors } from "../../src/theme";
 
 export default function LoginScreen() {
@@ -38,7 +39,7 @@ export default function LoginScreen() {
       style={styles.screen}
     >
       <View style={styles.brand}>
-        <View style={styles.mark}><Ionicons name="stats-chart" size={22} color={colors.lime} /></View>
+        <BrandMark />
         <Text style={styles.brandName}>FocusFlow</Text>
       </View>
       <View style={styles.copy}>
@@ -62,7 +63,6 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, paddingHorizontal: 24, paddingTop: 70, backgroundColor: colors.paper },
   brand: { flexDirection: "row", alignItems: "center", gap: 10 },
-  mark: { width: 38, height: 38, borderRadius: 12, backgroundColor: colors.forest, alignItems: "center", justifyContent: "center" },
   brandName: { fontSize: 21, fontWeight: "900", color: colors.ink },
   copy: { marginTop: 70, marginBottom: 28 },
   kicker: { fontSize: 10, letterSpacing: 1.4, fontWeight: "800", color: colors.muted },

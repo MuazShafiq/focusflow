@@ -1,10 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Redirect, Tabs } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../../src/auth/AuthContext";
 import { colors } from "../../src/theme";
 
 export default function TabLayout() {
   const { session, loading } = useAuth();
+  const insets = useSafeAreaInsets();
   if (loading) return null;
   if (!session) return <Redirect href="/(auth)/login" />;
 
@@ -15,9 +17,9 @@ export default function TabLayout() {
         tabBarActiveTintColor: colors.lime,
         tabBarInactiveTintColor: colors.muted,
         tabBarStyle: {
-          height: 70,
+          height: 60 + insets.bottom,
           paddingTop: 8,
-          paddingBottom: 10,
+          paddingBottom: Math.max(insets.bottom, 8),
           borderTopColor: colors.line,
           backgroundColor: colors.card,
         },
@@ -29,6 +31,15 @@ export default function TabLayout() {
           title: "Today",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="today-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="plan"
+        options={{
+          title: "Plan",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="calendar-outline" size={size} color={color} />
           ),
         }}
       />

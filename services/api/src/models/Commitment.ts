@@ -7,6 +7,15 @@ const commitmentSchema = new Schema(
     category: { type: String, default: "Commitment", trim: true },
     startAt: { type: Date, required: true },
     endAt: { type: Date, required: true },
+    recurrence: {
+      type: String,
+      enum: ["none", "weekly"],
+      default: "none",
+    },
+    recurrenceDays: {
+      type: [{ type: Number, min: 0, max: 6 }],
+      default: [],
+    },
   },
   { timestamps: true },
 );

@@ -1,4 +1,9 @@
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:4000/api";
+import Constants from "expo-constants";
+
+const metroHost = Constants.expoConfig?.hostUri?.split(":")[0];
+const API_URL =
+  process.env.EXPO_PUBLIC_API_URL ??
+  (metroHost ? `http://${metroHost}:4000/api` : "http://localhost:4000/api");
 
 export class ApiClientError extends Error {
   constructor(

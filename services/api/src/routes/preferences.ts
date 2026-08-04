@@ -10,6 +10,7 @@ const timePattern = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 const preferencesInput = z.object({
   timezone: z.string().min(1).max(100),
+  clockFormat: z.enum(["12h", "24h"]),
   dayStart: z.string().regex(timePattern),
   dayEnd: z.string().regex(timePattern),
   focusSessionMinutes: z.coerce.number().int().min(20).max(120),
