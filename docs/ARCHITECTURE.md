@@ -2,7 +2,8 @@
 
 ## Runtime flow
 
-1. The React web app and Expo mobile app authenticate through the Express API.
+1. The responsive React app authenticates through the Express API from desktop
+   and mobile browsers.
 2. Express owns users, tasks, commitments, preferences, plans, and feedback in
    MongoDB.
 3. Plan generation sends a bounded, user-scoped payload to the Flask scheduler
@@ -10,7 +11,7 @@
 4. Flask protects fixed commitments and locked blocks, adds enabled lifestyle
    targets, and searches feasible task slots.
 5. A scikit-learn classifier scores candidate task blocks by expected completion
-   fit. Express persists the result, making it available to both clients.
+   fit. Express persists the result for the responsive client.
 
 Flask never receives passwords or tokens and does not connect to MongoDB.
 
@@ -50,5 +51,5 @@ projects from the same monorepo. Express and Flask each run as a serverless
 function, and only Express possesses the database connection string. The
 scheduler endpoint requires the shared service token.
 
-MongoDB Atlas provides the database, and Expo EAS produces Android APKs for
-GitHub Releases.
+MongoDB Atlas provides the database. The Vite client includes mobile-web install
+metadata and uses one production URL on desktop and phones.

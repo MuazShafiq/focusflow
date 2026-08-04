@@ -2,8 +2,8 @@
 
 ## Accounts
 
-Create free MongoDB Atlas, Vercel, and Expo accounts using the same GitHub
-account where practical. Vercel Hobby is for personal, non-commercial projects.
+Create free MongoDB Atlas and Vercel accounts using the same GitHub account where
+practical. Vercel Hobby is for personal, non-commercial projects.
 
 ## 1. MongoDB Atlas
 
@@ -39,19 +39,5 @@ account where practical. Vercel Hobby is for personal, non-commercial projects.
 4. Deploy, then copy the production URL into the API project's `WEB_ORIGIN` and
    redeploy the API.
 
-## 5. Expo mobile app
-
-From `apps/mobile`:
-
-```sh
-npx eas-cli login
-npx eas-cli build:configure
-npx eas-cli build --platform android --profile preview
-```
-
-Set `EXPO_PUBLIC_API_URL` to the Vercel API URL ending in `/api` before building.
-The preview profile produces an installable APK. Attach it to a GitHub Release
-for free distribution.
-
-On a physical device during local development, `localhost` points to the phone,
-not the computer. Set `EXPO_PUBLIC_API_URL` to the computer's LAN IP.
+The deployed web URL is the desktop and mobile application. On supported mobile
+browsers, users can add it to their home screen without a store build.

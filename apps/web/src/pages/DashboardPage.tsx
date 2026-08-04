@@ -434,7 +434,9 @@ export const DashboardPage = () => {
   const [showPreferences, setShowPreferences] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notice, setNotice] = useState("");
-  const [planViewDays, setPlanViewDays] = useState<1 | 3 | 7>(7);
+  const [planViewDays, setPlanViewDays] = useState<1 | 3 | 7>(() =>
+    window.matchMedia("(max-width: 760px)").matches ? 1 : 7,
+  );
   const [planDateOffset, setPlanDateOffset] = useState(0);
   const [planHorizon, setPlanHorizon] = useState<7 | 14>(7);
   const [activeView, setActiveView] = useState<DashboardView>(() => {
@@ -702,10 +704,14 @@ export const DashboardPage = () => {
 
   return (
     <div className="dashboard-shell">
-      <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
+      <aside
+        id="dashboard-sidebar"
+        className={`sidebar ${sidebarOpen ? "open" : ""}`}
+      >
         <div className="sidebar-top">
           <Logo />
           <button
+            type="button"
             className="mobile-close"
             onClick={() => setSidebarOpen(false)}
             aria-label="Close menu"
@@ -715,25 +721,33 @@ export const DashboardPage = () => {
         </div>
         <nav className="sidebar-nav">
           <button
+            type="button"
             className={activeView === "today" ? "active" : ""}
+            aria-current={activeView === "today" ? "page" : undefined}
             onClick={() => openView("today")}
           >
             <LayoutDashboard size={18} /> Today
           </button>
           <button
+            type="button"
             className={activeView === "plan" ? "active" : ""}
+            aria-current={activeView === "plan" ? "page" : undefined}
             onClick={() => openView("plan")}
           >
             <CalendarDays size={18} /> My plan
           </button>
           <button
+            type="button"
             className={activeView === "tasks" ? "active" : ""}
+            aria-current={activeView === "tasks" ? "page" : undefined}
             onClick={() => openView("tasks")}
           >
             <ListTodo size={18} /> Tasks <span>{tasks.length}</span>
           </button>
           <button
+            type="button"
             className={activeView === "insights" ? "active" : ""}
+            aria-current={activeView === "insights" ? "page" : undefined}
             onClick={() => openView("insights")}
           >
             <BarChart3 size={18} /> Insights
@@ -755,12 +769,22 @@ export const DashboardPage = () => {
           </div>
         </div>
       </aside>
+      <button
+        type="button"
+        className={`sidebar-scrim ${sidebarOpen ? "visible" : ""}`}
+        onClick={() => setSidebarOpen(false)}
+        aria-label="Close navigation"
+        tabIndex={sidebarOpen ? 0 : -1}
+      />
       <main className="dashboard-main">
         <header className="dashboard-header">
           <button
+            type="button"
             className="menu-button"
             onClick={() => setSidebarOpen(true)}
             aria-label="Open menu"
+            aria-controls="dashboard-sidebar"
+            aria-expanded={sidebarOpen}
           >
             <Menu size={21} />
           </button>
@@ -1177,6 +1201,45 @@ export const DashboardPage = () => {
           </>
         )}
       </main>
+      <nav className="mobile-bottom-nav" aria-label="Primary navigation">
+        <button
+          type="button"
+          className={activeView === "today" ? "active" : ""}
+          aria-current={activeView === "today" ? "page" : undefined}
+          onClick={() => openView("today")}
+        >
+          <LayoutDashboard size={20} />
+          <span>Today</span>
+        </button>
+        <button
+          type="button"
+          className={activeView === "plan" ? "active" : ""}
+          aria-current={activeView === "plan" ? "page" : undefined}
+          onClick={() => openView("plan")}
+        >
+          <CalendarDays size={20} />
+          <span>Plan</span>
+        </button>
+        <button
+          type="button"
+          className={activeView === "tasks" ? "active" : ""}
+          aria-current={activeView === "tasks" ? "page" : undefined}
+          onClick={() => openView("tasks")}
+        >
+          <ListTodo size={20} />
+          <span>Tasks</span>
+          {tasks.length > 0 && <i>{tasks.length}</i>}
+        </button>
+        <button
+          type="button"
+          className={activeView === "insights" ? "active" : ""}
+          aria-current={activeView === "insights" ? "page" : undefined}
+          onClick={() => openView("insights")}
+        >
+          <BarChart3 size={20} />
+          <span>Insights</span>
+        </button>
+      </nav>
       {showTaskForm && (
         <div
           className="modal-backdrop"

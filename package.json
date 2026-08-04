@@ -13,11 +13,10 @@
     "dev:api": "npm run dev -w @focusflow/api",
     "dev:api:local": "npm run dev:local -w @focusflow/api",
     "dev:web": "npm run dev -w @focusflow/web",
-    "dev:mobile": "npm run start -w @focusflow/mobile",
     "dev:scheduler": "node scripts/python-command.mjs -m flask --app services/scheduler/app.py run --host 127.0.0.1 --port 5001 --debug",
     "build": "npm run build -w @focusflow/contracts && npm run build -w @focusflow/api && npm run build -w @focusflow/web",
     "test": "npm run test -w @focusflow/api && node scripts/python-command.mjs -m pytest services/scheduler/tests",
-    "typecheck": "npm run typecheck -w @focusflow/api && npm run typecheck -w @focusflow/web && npm run typecheck -w @focusflow/mobile",
+    "typecheck": "npm run typecheck -w @focusflow/api && npm run typecheck -w @focusflow/web",
     "lint": "npm run lint -w @focusflow/api && npm run lint -w @focusflow/web",
     "format": "prettier --write .",
     "format:check": "prettier --check ."

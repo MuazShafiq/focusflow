@@ -586,7 +586,9 @@ select:focus {
   margin-top: 2px;
 }
 .mobile-close,
-.menu-button {
+.menu-button,
+.mobile-bottom-nav,
+.sidebar-scrim {
   display: none;
   border: 0;
   background: none;
@@ -1511,11 +1513,15 @@ select:focus {
   }
 }
 @media (max-width: 760px) {
+  body {
+    overscroll-behavior-y: none;
+  }
   .page-width {
     width: calc(100% - 28px);
   }
   .landing-nav {
-    height: 72px;
+    height: calc(72px + env(safe-area-inset-top));
+    padding-top: env(safe-area-inset-top);
   }
   .nav-actions .text-link {
     display: none;
@@ -1526,7 +1532,7 @@ select:focus {
     gap: 50px;
   }
   .hero h1 {
-    font-size: clamp(50px, 15vw, 72px);
+    font-size: clamp(42px, 13vw, 60px);
   }
   .hero-actions {
     flex-direction: column;
@@ -1544,16 +1550,24 @@ select:focus {
     gap: 35px;
   }
   .auth-form-wrap {
-    padding: 35px 22px;
+    min-height: 100dvh;
+    padding: calc(30px + env(safe-area-inset-top)) 20px
+      calc(30px + env(safe-area-inset-bottom));
   }
   .dashboard-shell {
     display: block;
   }
   .sidebar {
     position: fixed;
+    z-index: 50;
+    top: 0;
+    bottom: 0;
     left: 0;
     transform: translateX(-105%);
-    width: 250px;
+    width: min(82vw, 300px);
+    height: 100dvh;
+    padding-top: calc(25px + env(safe-area-inset-top));
+    padding-bottom: calc(22px + env(safe-area-inset-bottom));
     box-shadow: 20px 0 50px #0000001f;
     transition: transform 0.2s;
   }
@@ -1566,15 +1580,82 @@ select:focus {
     place-items: center;
     cursor: pointer;
   }
+  .sidebar-scrim {
+    position: fixed;
+    z-index: 49;
+    inset: 0;
+    display: block;
+    padding: 0;
+    opacity: 0;
+    pointer-events: none;
+    background: #02070bcc;
+    backdrop-filter: blur(4px);
+    transition: opacity 0.2s;
+  }
+  .sidebar-scrim.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .mobile-bottom-nav {
+    position: fixed;
+    z-index: 40;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    min-height: calc(64px + env(safe-area-inset-bottom));
+    padding: 7px 8px max(7px, env(safe-area-inset-bottom));
+    border-top: 1px solid #294054;
+    background: #09131df2;
+    box-shadow: 0 -12px 32px #02070b80;
+    backdrop-filter: blur(18px);
+  }
+  .mobile-bottom-nav button {
+    position: relative;
+    min-width: 0;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 3px;
+    padding: 5px 2px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #71889a;
+    font-size: 9px;
+    font-weight: 700;
+  }
+  .mobile-bottom-nav button.active {
+    background: #11283a;
+    color: var(--lime);
+  }
+  .mobile-bottom-nav button i {
+    position: absolute;
+    top: 2px;
+    left: calc(50% + 7px);
+    min-width: 15px;
+    padding: 1px 4px;
+    border-radius: 9px;
+    background: var(--apricot);
+    color: #25170e;
+    font-size: 8px;
+    font-style: normal;
+  }
   .dashboard-main {
-    padding: 26px 17px 45px;
+    padding: calc(22px + env(safe-area-inset-top)) 14px
+      calc(92px + env(safe-area-inset-bottom));
   }
   .dashboard-header {
     align-items: flex-start;
     gap: 10px;
   }
+  .dashboard-header > div {
+    min-width: 0;
+    flex: 1;
+  }
   .dashboard-header h1 {
-    font-size: 25px;
+    font-size: clamp(21px, 6.4vw, 26px);
   }
   .menu-button {
     width: 36px;
@@ -1588,7 +1669,28 @@ select:focus {
     font-size: 0;
   }
   .metric-grid {
-    grid-template-columns: 1fr;
+    display: flex;
+    gap: 10px;
+    margin: 20px -14px 14px;
+    padding: 0 14px 4px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .metric-grid::-webkit-scrollbar {
+    display: none;
+  }
+  .metric-grid article {
+    flex: 0 0 min(76vw, 245px);
+    padding: 15px;
+    scroll-snap-align: start;
+  }
+  .metric-grid strong {
+    font-size: 24px;
+  }
+  .panel {
+    padding: 15px;
+    border-radius: 14px;
   }
   .form-grid {
     grid-template-columns: 1fr;
@@ -1620,12 +1722,24 @@ select:focus {
   }
   .calendar-view-options {
     justify-content: space-between;
+    flex-wrap: wrap;
   }
   .calendar-scroll {
-    max-height: 650px;
+    max-height: min(68dvh, 650px);
   }
   .day-calendar .calendar-grid {
-    min-width: 460px;
+    grid-template-columns: 48px minmax(0, 1fr);
+    min-width: 100%;
+  }
+  .day-calendar .calendar-time-axis time {
+    right: 6px;
+  }
+  .day-calendar .calendar-event {
+    left: 3px;
+    right: 3px;
+  }
+  .day-calendar .calendar-event strong {
+    font-size: 11px;
   }
   .calendar-event-actions {
     opacity: 1;
@@ -1636,5 +1750,30 @@ select:focus {
   .calendar-selection-actions {
     grid-column: 2;
     flex-wrap: wrap;
+  }
+  .modal-backdrop {
+    place-items: end center;
+    padding: 0;
+  }
+  .task-modal,
+  .commitment-modal {
+    width: 100%;
+    max-height: calc(94dvh - env(safe-area-inset-top));
+    overflow-y: auto;
+    padding: 19px 17px calc(19px + env(safe-area-inset-bottom));
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: 22px 22px 0 0;
+  }
+  .task-modal input,
+  .task-modal select {
+    min-height: 46px;
+    font-size: 16px;
+  }
+  .task-modal .button-full {
+    min-height: 48px;
+    position: sticky;
+    bottom: 0;
   }
 }
