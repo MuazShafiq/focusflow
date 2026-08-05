@@ -14,9 +14,10 @@ const start = async () => {
   ]);
 
   await connectDatabase();
-  const server = createApp().listen(config.PORT, () => {
+  const host = process.env.DEV_SERVER_HOST ?? "127.0.0.1";
+  const server = createApp().listen(config.PORT, host, () => {
     console.log(
-      `FocusFlow local API listening on http://localhost:${config.PORT}`,
+      `FocusFlow local API listening on http://${host}:${config.PORT}`,
     );
     console.log("Using an isolated temporary MongoDB database.");
   });

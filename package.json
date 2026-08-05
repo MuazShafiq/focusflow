@@ -9,7 +9,7 @@
     "services/api"
   ],
   "scripts": {
-    "dev": "concurrently -n API,SCHEDULER,WEB -c blue,yellow,green \"npm run dev:api:local\" \"npm run dev:scheduler\" \"npm run dev:web\"",
+    "dev": "node scripts/dev.mjs",
     "dev:api": "npm run dev -w @focusflow/api",
     "dev:api:local": "npm run dev:local -w @focusflow/api",
     "dev:web": "npm run dev -w @focusflow/web",

@@ -69,7 +69,16 @@ Open `http://localhost:5173`. The command starts the web app, API, scheduler,
 and an isolated in-memory MongoDB instance. Local accounts and data reset when
 the command stops, so local testing cannot alter the deployed Atlas database.
 
-On a phone connected to the same network, open `http://<computer-lan-ip>:5173`.
+To expose that same development session to a phone on the local network, run:
+
+```powershell
+npm run dev -- --host
+```
+
+FocusFlow detects the computer's LAN address, configures the API and CORS, and
+prints the exact phone URL. Keep the phone and computer on the same private
+network, and allow Node.js through Windows Firewall if prompted.
+
 The production app works directly in the browser at the live URL above. Supported
 mobile browsers can add FocusFlow to the home screen from their browser menu.
 
