@@ -39,4 +39,4 @@ jobs:
     needs: verify
     steps:
       - uses: actions/checkout@v4
-      - run: docker build -t focusflow-app .
+      - run: docker build -t focusflow .
