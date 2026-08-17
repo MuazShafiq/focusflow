@@ -7,7 +7,6 @@
     </linearGradient>
   </defs>
 
-  <rect width="512" height="512" rx="112" fill="#071018" />
   <rect x="78" y="88" width="356" height="350" rx="76" fill="#0d1823" stroke="url(#focusflow-gradient)" stroke-width="28" />
 
   <rect x="138" y="48" width="48" height="112" rx="24" fill="url(#focusflow-gradient)" />
